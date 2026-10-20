@@ -1,0 +1,28 @@
+name: Build APK
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Arrange files
+        run: |
+          mkdir -p app/src/main/java/com/adnan/manager app/src/main/res/xml
+          mv app_build.gradle.kts app/build.gradle.kts
+          mv AndroidManifest.xml app/src/main/AndroidManifest.xml
+          mv MainActivity.kt app/src/main/java/com/adnan/manager/MainActivity.kt
+          mv file_paths.xml app/src/main/res/xml/file_paths.xml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - run: gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AdnanManager-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
